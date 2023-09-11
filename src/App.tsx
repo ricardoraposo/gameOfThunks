@@ -1,49 +1,50 @@
 import { useState } from 'react';
-import reactLogo from './assets/react.svg';
 import './App.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { DispatchType, State } from './types';
+import { fetchApData } from './redux/actions/actions';
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [charName, setCharName] = useState('');
+  const { charInfo, hasBeenFetched } = useSelector((state: State) => state);
+  const { name, gender, titles } = charInfo;
+  const dispatch: DispatchType = useDispatch();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setCharName(value);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank" rel="noreferrer">
-          <img src={ reactLogo } className="logo react" alt="React logo" />
-        </a>
-        <a href="https://betrybe.com" target="_blank" rel="noreferrer">
-          <img src="/trybe.svg" className="logo trybe" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React + Trybe</h1>
-      <div className="card">
-        <button onClick={ () => setCount((prevCount) => prevCount + 1) }>
-          count is
-          {' '}
-          {count}
-        </button>
-        <p>
-          Edit
-          {' '}
-          <code>src/App.tsx</code>
-          {' '}
-          and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite, React or Trybe logos to learn more
-      </p>
-      <p className="read-the-docs">
-        npx create-trybe-app was created by
-        {' '}
-        <a href="https://github.com/ricardoraposo" target="_blank" rel="noreferrer">
-          Ricardo Raposo
-        </a>
-      </p>
-    </>
+    <div style={ { display: 'flex', flexDirection: 'column', gap: '20px' } }>
+      <label htmlFor="characterName">Nome do personagem</label>
+      <input
+        value={ charName }
+        onChange={ handleChange }
+        type="text"
+        id="characterName"
+      />
+      <button
+        onClick={ () => {
+          const formattedName = charName.replace(/ /, '+');
+          dispatch(fetchApData(formattedName));
+        } }
+      >
+        Buscar
+      </button>
+      {
+        hasBeenFetched
+        && (
+          <div>
+            <p>{name}</p>
+            <p>{gender}</p>
+            {
+              titles.map((title, index) => <p key={ index }>{title}</p>)
+            }
+          </div>
+        )
+      }
+    </div>
   );
 }
 
